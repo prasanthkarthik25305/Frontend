@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+</head>
+<body>
+    <div id="authContainer">
+        <div id="loginForm" class="auth-form">
+            <h2>Login</h2>
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button id="loginBtn">Login</button>
+            <p id="loginError" class="error-msg"></p>
+        </div>
+        
+        <div id="logoutSection" class="hidden">
+            <p>Welcome, <span id="loggedInUser"></span>!</p>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>Inventory Management System</h1>
+            <div class="backend-info">
+                <div class="info-card">
+                    <h3>Java Backend Connection</h3>
+                    <p>This application connects to your Java JDBC backend on localhost:8080.</p>
+                    <div class="info-details">
+                        <h4>Backend Setup:</h4>
+                        <ol>
+                            <li>Ensure MySQL database is running</li>
+                            <li>Deploy your Java servlet to Tomcat</li>
+                            <li>Verify backend API is available at <code>http://localhost:8080/products</code></li>
+                        </ol>
+                        <p class="note">If your backend is not available, the application will use mock data.</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="search-section">
+                <div class="product-id-search">
+                    <input type="text" id="productIdInput" placeholder="Enter product ID">
+                    <button id="viewProductBtn">View Product</button>
+                </div>
+                
+                <div class="text-search">
+                    <input type="text" id="searchInput" placeholder="Search products...">
+                    <button id="clearSearchBtn">Clear</button>
+                </div>
+            </div>
+
+            <div class="filter-panel">
+                <h3>Filter Products</h3>
+                <div class="filter-controls">
+                    <div class="price-filter">
+                        <label for="minPrice">Min Price:</label>
+                        <input type="number" id="minPrice" min="0" value="0">
+                        
+                        <label for="maxPrice">Max Price:</label>
+                        <input type="number" id="maxPrice" min="0" value="1000">
+                    </div>
+                    
+                    <div class="category-filter">
+                        <label for="category">Category:</label>
+                        <input type="text" id="categoryFilter" placeholder="Filter by category">
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <button id="applyFilterBtn">Apply Filter</button>
+                        <button id="resetFilterBtn">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="addProductBtn" class="btn-add">Add Product</button>
+                <button id="updateProductBtn" class="btn-update" disabled>Update Product</button>
+                <button id="deleteProductBtn" class="btn-delete" disabled>Delete Product</button>
+                <button id="exportCsvBtn" class="btn-export">Export CSV</button>
+                <button id="refreshBtn" class="btn-refresh">Refresh</button>
+            </div>
+        </div>
+
+        <div class="view-controls">
+            <button class="view-btn active" data-view="table">Table View</button>
+            <button class="view-btn" data-view="cards">Card View</button>
+        </div>
+
+        <div id="tableView" class="view-content active">
+            <table id="productsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Brand</th>
+                        <th>Category</th>
+                        <th>Cost</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <!-- Products will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="cardsView" class="view-content">
+            <div id="productsGrid">
+                <!-- Product cards will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add New Product</h2>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label for="productName">Name:</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="productBrand">Brand:</label>
+                    <input type="text" id="productBrand" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Category:</label>
+                    <input type="text" id="productCategory" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCost">Cost:</label>
+                    <input type="number" id="productCost" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="productQuantity">Quantity:</label>
+                    <input type="number" id="productQuantity" min="0" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="updateProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Update Product</h2>
+            <form id="updateProductForm">
+                <input type="hidden" id="updateProductId">
+                <div class="form-group">
+                    <label for="updateProductName">Name:</label>
+                    <input type="text" id="updateProductName" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductBrand">Brand:</label>
+                    <input type="text" id="updateProductBrand" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductCategory">Category:</label>
+                    <input type="text" id="updateProductCategory" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductCost">Cost:</label>
+                    <input type="number" id="updateProductCost" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductQuantity">Quantity:</label>
+                    <input type="number" id="updateProductQuantity" min="0" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Delete Product</h2>
+            <p>Are you sure you want to delete this product?</p>
+            <div id="productToDelete">
+                <p><strong>ID:</strong> <span id="deleteProductId"></span></p>
+                <p><strong>Name:</strong> <span id="deleteProductName"></span></p>
+                <p><strong>Brand:</strong> <span id="deleteProductBrand"></span></p>
+                <p><strong>Category:</strong> <span id="deleteProductCategory"></span></p>
+            </div>
+            <p class="warning">This action cannot be undone.</p>
+            <div class="form-actions">
+                <button type="button" class="cancel-btn">Cancel</button>
+                <button type="button" id="confirmDeleteBtn" class="delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Product Details</h2>
+            <div id="productDetails">
+                <!-- Product details will be inserted here -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <p id="toastMessage"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
