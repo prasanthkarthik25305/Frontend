@@ -101,7 +101,7 @@ Feel free to fork the repo, suggest features, or submit pull requests!
 
 ## 🌐 Live Preview (Optional)
 
-> Add link here if hosted: e.g., [Live Demo](https://your-site.netlify.app)
+> Add link here if hosted: e.g., [Live Demo](https://vidhyamaarg.vercel.app/)
 
 
 
